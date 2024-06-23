@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página de Inicio</title>
+    <link rel="stylesheet" href="stylo.inicio.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+
+    <header>
+        <img src="login/logo.webp" alt="Logo del colegio" class="logo">
+        <h1>Colegio Parroquial Privado Subvencionado Santa María Del Chaco</h1>
+    </header>
+    <h3>Bienvenido a la pagina web del Colegio Parroquila Privado Subvencionado Santa María del Chaco</h3>
+    <h3>Nuestra Historia</h3>
+    <h3>Somos una Institución construida en el año 1992 e inaugurada en el año 1993, creada a iniciativa
+        del Vicariato Apostólico del Pilcomayo y la Parroquia Santa María, con la Congregación de los 
+        sacerdotes Misioneros Oblatos de María Inmaculada, viendo la gran necesidad de atender
+        la Educación de niños y jóvenes de esta comunidad y sus alrededores, en su mayoría de muy 
+        escasos recursos económicos, pero como todo ciudadano con derecho a una educación formal 
+        y de calidad, acorde a la filosofía educativa cristiana, como propuesta de educación evangelizadora.
+    </h3>
+    <h3>Misión</h3>
+    <h3>Nuestra Institución pretende formar hombres y mujeres autónomos y libres, seguros de sí mismos,
+        con una formación en la Fe, y que desarrollen actitudes, valores personales y comunitario.
+    </h3>
+    <h3>Visión</h3>
+    <h3>Presentamos a Jesús a los niños /as y jóvenes como una persona real, al que pueden llegar a
+        conocer y amar.
+        En Jesús vemos a Dios que viene a nosotros para que podamos “tener vida y tenerla en plenitud”. 
+        Él nos revela en qué consiste la plenitud humana.
+    </h3>
+    <h4>En esta pagina podrán ver los alumnos sus 
+        horarios, tareas, registro de asistencia como horario
+        de examen asi como los docentes que podrán alzar
+        sus clases y tareas de la semana
+    </h4>
+    <main>
+        <section class="container">
+            <img src="login/virgen.webp" alt="Segundo logo del colegio" class="logo2">
+            <h2>Bienvenido al portal del colegio</h2>
+            <h2>Inicie Sesión</h2>
+            <div class="buttons">
+                <a href="{% url 'admin_page' %}" class="btn">Administrador</a>
+                <a href="login/login_docente.html" class="btn">Docente</a>
+                <a href="login/login_alumno.html" class="btn">Alumnos</a>
+                <a href="contact.html" class="btn">Padres</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024</p>
+    </footer>
+
+</body>
+</html>

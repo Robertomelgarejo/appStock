@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+
+{% block context %}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">{{ titulo }} </h3><br/>
+                        <li class="nav-item d-none d-sm-inline-block">
+                            
+                            <a href="#" id="createCursoBtn" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Crear Nuevo Curso</a>
+                        </li>
+
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <table id="example1" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                    <th>Profesor</th>
+                                    <th>Duración (semanas)</th>
+                                    <th>Fecha de Inicio</th>
+                                    <th>Fecha de Fin</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for curso in object_list %}
+                                <tr data-id="{{ curso.id }}">
+                                    <td>{{ curso.id }}</td>
+                                    <td class="curso-nombre">{{ curso.nombre }}</td>
+                                    <td class="curso-descripcion">{{ curso.descripcion }}</td>
+                                    <td class="curso-profesor">{{ curso.profesor }}</td>
+                                    <td class="curso-duracion">{{ curso.duracion }}</td>
+                                    <td class="curso-fecha-inicio">{{ curso.fecha_inicio }}</td>
+                                    <td class="curso-fecha-fin">{{ curso.fecha_fin }}</td>
+                                    <td>
+                                        <a href="#" class="btn btn-danger btn-sm btn-delete"><i class="fas fa-trash"></i></a>
+                                        <a href="#" class="btn btn-warning btn-sm btn-edit"><i class="fas fa-edit"></i></a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                <script>
+                                    document.addEventListener("DOMContentLoaded", function() {
+                                        const cursoForm = document.getElementById('cursoForm');
+                                        const saveCursoBtn = document.getElementById('saveCursoBtn');
+                                        let isEditing = false;
+                                        let editingId = null;
+                                    
+                                        document.getElementById('createCursoBtn').addEventListener('click', function() {
+                                            isEditing = false;
+                                            cursoForm.reset();
+                                            document.getElementById('cursoModalLabel').innerText = 'Nuevo Curso';
+                                            $('#cursoModal').modal('show');
+                                        });
+                                    
+                                        saveCursoBtn.addEventListener('click', function() {
+                                            const nombre = document.getElementById('nombre').value;
+                                            const descripcion = document.getElementById('descripcion').value;
+                                            const profesor = document.getElementById('profesor').value;
+                                            const duracion = document.getElementById('duracion').value;
+                                            const fecha_inicio = document.getElementById('fecha_inicio').value;
+                                            const fecha_fin = document.getElementById('fecha_fin').value;
+                                    
+                                            if (isEditing) {
+                                                const row = document.querySelector(`tr[data-id="${editingId}"]`);
+                                                row.querySelector('.curso-nombre').innerText = nombre;
+                                                row.querySelector('.curso-descripcion').innerText = descripcion;
+                                                row.querySelector('.curso-profesor').innerText = profesor;
+                                                row.querySelector('.curso-duracion').innerText = duracion;
+                                                row.querySelector('.curso-fecha-inicio').innerText = fecha_inicio;
+                                                row.querySelector('.curso-fecha-fin').innerText = fecha_fin;
+                                            } else {
+                                                const tableBody = document.querySelector('table tbody');
+                                                const newRow = document.createElement('tr');
+                                                const newId = Date.now();
+                                                newRow.setAttribute('data-id', newId);
+                                                newRow.innerHTML = `
+                                                    <td>${newId}</td>
+                                                    <td class="curso-nombre">${nombre}</td>
+                                                    <td class="curso-descripcion">${descripcion}</td>
+                                                    <td class="curso-profesor">${profesor}</td>
+                                                    <td class="curso-duracion">${duracion}</td>
+                                                    <td class="curso-fecha-inicio">${fecha_inicio}</td>
+                                                    <td class="curso-fecha-fin">${fecha_fin}</td>
+                                                    <td>
+                                                        <a href="#" class="btn btn-danger btn-sm btn-delete"><i class="fas fa-trash"></i></a>
+                                                        <a href="#" class="btn btn-warning btn-sm btn-edit"><i class="fas fa-edit"></i></a>
+                                                    </td>
+                                                `;
+                                                tableBody.appendChild(newRow);
+                                                addEventListenersToRow(newRow);
+                                            }
+                                    
+                                            $('#cursoModal').modal('hide');
+                                        });
+                                    
+                                        function addEventListenersToRow(row) {
+                                            row.querySelector('.btn-edit').addEventListener('click', function() {
+                                                isEditing = true;
+                                                editingId = row.getAttribute('data-id');
+                                                document.getElementById('nombre').value = row.querySelector('.curso-nombre').innerText;
+                                                document.getElementById('descripcion').value = row.querySelector('.curso-descripcion').innerText;
+                                                document.getElementById('profesor').value = row.querySelector('.curso-profesor').innerText;
+                                                document.getElementById('duracion').value = row.querySelector('.curso-duracion').innerText;
+                                                document.getElementById('fecha_inicio').value = row.querySelector('.curso-fecha-inicio').innerText;
+                                                document.getElementById('fecha_fin').value = row.querySelector('.curso-fecha-fin').innerText;
+                                                document.getElementById('cursoModalLabel').innerText = 'Editar Curso';
+                                                $('#cursoModal').modal('show');
+                                            });
+                                    
+                                            row.querySelector('.btn-delete').addEventListener('click', function() {
+                                                if (confirm('¿Estás seguro de que deseas eliminar este curso?')) {
+                                                    row.remove();
+                                                }
+                                            });
+                                        }
+                                    
+                                        document.querySelectorAll('table tbody tr').forEach(addEventListenersToRow);
+                                    });
+                                    </script>
+                           </tbody>
+                           <tfoot>
+                               <tr>
+                                   <th>ID</th>
+                                   <th>Nombre</th>
+                                   <th>Descripción</th>
+                                   <th>Profesor</th>
+                                   <th>Duración (semanas)</th>
+                                   <th>Fecha de Inicio</th>
+                                   <th>Fecha de Fin</th>
+                                   <th>Acciones</th>
+                               </tr>
+                           </tfoot>
+                       </table>
+                   </div>
+               </div>
+           </div>
+       </div>
+   </div>
+
+   <!-- Modal para Crear/Editar Curso -->
+   <div class="modal fade" id="cursoModal" tabindex="-1" role="dialog" aria-labelledby="cursoModalLabel" aria-hidden="true">
+       <div class="modal-dialog" role="document">
+           <div class="modal-content">
+               <div class="modal-header">
+                   <h5 class="modal-title" id="cursoModalLabel">Nuevo Curso</h5>
+                   <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                       <span aria-hidden="true">&times;</span>
+                   </button>
+               </div>
+               <div class="modal-body">
+                   <form id="cursoForm">
+                       <div class="form-group">
+                           <label for="nombre">Nombre</label>
+                           <input type="text" class="form-control" id="nombre" required>
+                       </div>
+                       <div class="form-group">
+                           <label for="descripcion">Descripción</label>
+                           <textarea class="form-control" id="descripcion" required></textarea>
+                       </div>
+                       <div class="form-group">
+                           <label for="profesor">Profesor</label>
+                           <input type="text" class="form-control" id="profesor" required>
+                       </div>
+                       <div class="form-group">
+                           <label for="duracion">Duración (semanas)</label>
+                           <input type="number" class="form-control" id="duracion" required>
+                       </div>
+                       <div class="form-group">
+                           <label for="fecha_inicio">Fecha de Inicio</label>
+                           <input type="date" class="form-control" id="fecha_inicio" required>
+                       </div>
+                       <div class="form-group">
+                           <label for="fecha_fin">Fecha de Fin</label>
+                           <input type="date" class="form-control" id="fecha_fin" required>
+                       </div>
+                       <input type="hidden" id="cursoId">
+                   </form>
+               </div>
+               <div class="modal-footer">
+                   <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                   <button type="button" class="btn btn-primary" id="saveCursoBtn">Guardar</button>
+               </div>
+           </div>
+       </div>
+   </div>
+</section>
+
+{% endblock context %}

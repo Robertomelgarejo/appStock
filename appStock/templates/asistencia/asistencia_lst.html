@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+
+{% block context %}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">{{ titulo }} </h3><br/>
+                        <li class="nav-item d-none d-sm-inline-block">
+                            <a href="#" id="createAsistenciaBtn" class="btn btn-success btn-sm">
+                                <i class="fas fa-plus"></i> Crear Nueva Asistencia
+                            </a>
+                        </li>
+                    </div>
+                    <div class="card-body">
+                        <table id="example1" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Estudiante</th>
+                                    <th>Fecha</th>
+                                    <th>Presente</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for asistencia in object_list %}
+                                <tr data-id="{{ asistencia.id }}">
+                                    <td>{{ asistencia.id }}</td>
+                                    <td>{{ asistencia.estudiante }}</td>
+                                    <td>{{ asistencia.fecha }}</td>
+                                    <td>{{ asistencia.presente|yesno:"Sí,No" }}</td>
+                                    <td>
+                                        <a href="#" class="btn btn-danger btn-sm btn-delete"><i class="fas fa-trash"></i></a>
+                                        <a href="#" class="btn btn-warning btn-sm btn-edit"><i class="fas fa-edit"></i></a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                <script>
+                                    document.addEventListener("DOMContentLoaded", function() {
+                                        const asistenciaForm = document.getElementById('asistenciaForm');
+                                        const saveAsistenciaBtn = document.getElementById('saveAsistenciaBtn');
+                                        let isEditing = false;
+                                        let editingId = null;
+                                    
+                                        document.getElementById('createAsistenciaBtn').addEventListener('click', function() {
+                                            isEditing = false;
+                                            asistenciaForm.reset();
+                                            document.getElementById('asistenciaModalLabel').innerText = 'Nueva Asistencia';
+                                            $('#asistenciaModal').modal('show');
+                                        });
+                                    
+                                        saveAsistenciaBtn.addEventListener('click', function() {
+                                            const estudiante = document.getElementById('estudiante').value;
+                                            const fecha = document.getElementById('fecha').value;
+                                            const presente = document.getElementById('presente').checked;
+                                    
+                                            if (isEditing) {
+                                                const row = document.querySelector(`tr[data-id="${editingId}"]`);
+                                                row.querySelector('.asistencia-estudiante').innerText = estudiante;
+                                                row.querySelector('.asistencia-fecha').innerText = fecha;
+                                                row.querySelector('.asistencia-presente').innerText = presente ? 'Sí' : 'No';
+                                            } else {
+                                                const tableBody = document.querySelector('table tbody');
+                                                const newRow = document.createElement('tr');
+                                                const newId = Date.now();
+                                                newRow.setAttribute('data-id', newId);
+                                                newRow.innerHTML = `
+                                                    <td>${newId}</td>
+                                                    <td class="asistencia-estudiante">${estudiante}</td>
+                                                    <td class="asistencia-fecha">${fecha}</td>
+                                                    <td class="asistencia-presente">${presente ? 'Sí' : 'No'}</td>
+                                                    <td>
+                                                        <a href="#" class="btn btn-danger btn-sm btn-delete"><i class="fas fa-trash"></i></a>
+                                                        <a href="#" class="btn btn-warning btn-sm btn-edit"><i class="fas fa-edit"></i></a>
+                                                    </td>
+                                                `;
+                                                tableBody.appendChild(newRow);
+                                                addEventListenersToRow(newRow);
+                                            }
+                                    
+                                            $('#asistenciaModal').modal('hide');
+                                        });
+                                    
+                                        function addEventListenersToRow(row) {
+                                            row.querySelector('.btn-edit').addEventListener('click', function() {
+                                                isEditing = true;
+                                                editingId = row.getAttribute('data-id');
+                                                document.getElementById('estudiante').value = row.querySelector('.asistencia-estudiante').innerText;
+                                                document.getElementById('fecha').value = row.querySelector('.asistencia-fecha').innerText;
+                                                document.getElementById('presente').checked = row.querySelector('.asistencia-presente').innerText === 'Sí';
+                                                document.getElementById('asistenciaModalLabel').innerText = 'Editar Asistencia';
+                                                $('#asistenciaModal').modal('show');
+                                            });
+                                    
+                                            row.querySelector('.btn-delete').addEventListener('click', function() {
+                                                if (confirm('¿Estás seguro de que deseas eliminar esta asistencia?')) {
+                                                    row.remove();
+                                                }
+                                            });
+                                        }
+                                    
+                                        document.querySelectorAll('table tbody tr').forEach(addEventListenersToRow);
+                                    });
+                                    </script>
+                                                          </tbody>
+                                                          <tfoot>
+                                                              <tr>
+                                                                  <th>ID</th>
+                                                                  <th>Estudiante</th>
+                                                                  <th>Fecha</th>
+                                                                  <th>Presente</th>
+                                                                  <th>Acciones</th>
+                                                              </tr>
+                                                          </tfoot>
+                                                      </table>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              
+                                  <!-- Modal para Crear/Editar Asistencia -->
+                                  <div class="modal fade" id="asistenciaModal" tabindex="-1" role="dialog" aria-labelledby="asistenciaModalLabel" aria-hidden="true">
+                                      <div class="modal-dialog" role="document">
+                                          <div class="modal-content">
+                                              <div class="modal-header">
+                                                  <h5 class="modal-title" id="asistenciaModalLabel">Nueva Asistencia</h5>
+                                                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                      <span aria-hidden="true">&times;</span>
+                                                  </button>
+                                              </div>
+                                              <div class="modal-body">
+                                                  <form id="asistenciaForm">
+                                                      <div class="form-group">
+                                                          <label for="estudiante">Estudiante</label>
+                                                          <input type="text" class="form-control" id="estudiante" required>
+                                                      </div>
+                                                      <div class="form-group">
+                                                          <label for="fecha">Fecha</label>
+                                                          <input type="date" class="form-control" id="fecha" required>
+                                                      </div>
+                                                      <div class="form-group">
+                                                          <label for="presente">Presente</label>
+                                                          <input type="checkbox" class="form-control" id="presente">
+                                                      </div>
+                                                      <input type="hidden" id="asistenciaId">
+                                                  </form>
+                                              </div>
+                                              <div class="modal-footer">
+                                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                                  <button type="button" class="btn btn-primary" id="saveAsistenciaBtn">Guardar</button>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </section>
+{% endblock context %}

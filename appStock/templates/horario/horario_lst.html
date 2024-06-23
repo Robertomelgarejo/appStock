@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+
+{% block context %}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">{{ titulo }} </h3><br/>
+                        <li class="nav-item d-none d-sm-inline-block">
+                            <a href="#" id="createHorarioBtn" class="btn btn-success btn-sm">
+                                
+                                <i class="fas fa-plus"></i> Crear Nuevo Horario
+                            </a>
+                        </li>
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <table id="example1" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Asignatura</th>
+                                    <th>Profesor</th>
+                                    <th>Día</th>
+                                    <th>Hora de Inicio</th>
+                                    <th>Hora de Fin</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for horario in object_list %}
+                                <tr data-id="{{ horario.id }}">
+                                    <td>{{ horario.id }}</td>
+                                    <td class="horario-asignatura">{{ horario.asignatura }}</td>
+                                    <td class="horario-profesor">{{ horario.profesor }}</td>
+                                    <td class="horario-dia">{{ horario.dia }}</td>
+                                    <td class="horario-hora-inicio">{{ horario.hora_inicio }}</td>
+                                    <td class="horario-hora-fin">{{ horario.hora_fin }}</td>
+                                    <td>
+                                        <a href="#" class="btn btn-danger btn-sm btn-delete"><i class="fas fa-trash"></i></a>
+                                        <a href="#" class="btn btn-warning btn-sm btn-edit"><i class="fas fa-edit"></i></a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                <script>
+                                    document.addEventListener("DOMContentLoaded", function() {
+                                        const horarioForm = document.getElementById('horarioForm');
+                                        const saveHorarioBtn = document.getElementById('saveHorarioBtn');
+                                        let isEditing = false;
+                                        let editingId = null;
+                                    
+                                        document.getElementById('createHorarioBtn').addEventListener('click', function() {
+                                            isEditing = false;
+                                            horarioForm.reset();
+                                            document.getElementById('horarioModalLabel').innerText = 'Nuevo Horario';
+                                            $('#horarioModal').modal('show');
+                                        });
+                                    
+                                        saveHorarioBtn.addEventListener('click', function() {
+                                            const asignatura = document.getElementById('asignatura').value;
+                                            const profesor = document.getElementById('profesor').value;
+                                            const dia = document.getElementById('dia').value;
+                                            const hora_inicio = document.getElementById('hora_inicio').value;
+                                            const hora_fin = document.getElementById('hora_fin').value;
+                                    
+                                            if (isEditing) {
+                                                const row = document.querySelector(`tr[data-id="${editingId}"]`);
+                                                row.querySelector('.horario-asignatura').innerText = asignatura;
+                                                row.querySelector('.horario-profesor').innerText = profesor;
+                                                row.querySelector('.horario-dia').innerText = dia;
+                                                row.querySelector('.horario-hora-inicio').innerText = hora_inicio;
+                                                row.querySelector('.horario-hora-fin').innerText = hora_fin;
+                                            } else {
+                                                const tableBody = document.querySelector('table tbody');
+                                                const newRow = document.createElement('tr');
+                                                const newId = Date.now();
+                                                newRow.setAttribute('data-id', newId);
+                                                newRow.innerHTML = `
+                                                    <td>${newId}</td>
+                                                    <td class="horario-asignatura">${asignatura}</td>
+                                                    <td class="horario-profesor">${profesor}</td>
+                                                    <td class="horario-dia">${dia}</td>
+                                                    <td class="horario-hora-inicio">${hora_inicio}</td>
+                                                    <td class="horario-hora-fin">${hora_fin}</td>
+                                                    <td>
+                                                        <a href="#" class="btn btn-danger btn-sm btn-delete"><i class="fas fa-trash"></i></a>
+                                                        <a href="#" class="btn btn-warning btn-sm btn-edit"><i class="fas fa-edit"></i></a>
+                                                    </td>
+                                                `;
+                                                tableBody.appendChild(newRow);
+                                                addEventListenersToRow(newRow);
+                                            }
+                                    
+                                            $('#horarioModal').modal('hide');
+                                        });
+                                    
+                                        function addEventListenersToRow(row) {
+                                            row.querySelector('.btn-edit').addEventListener('click', function() {
+                                                isEditing = true;
+                                                editingId = row.getAttribute('data-id');
+                                                document.getElementById('asignatura').value = row.querySelector('.horario-asignatura').innerText;
+                                                document.getElementById('profesor').value = row.querySelector('.horario-profesor').innerText;
+                                                document.getElementById('dia').value = row.querySelector('.horario-dia').innerText;
+                                                document.getElementById('hora_inicio').value = row.querySelector('.horario-hora-inicio').innerText;
+                                                document.getElementById('hora_fin').value = row.querySelector('.horario-hora-fin').innerText;
+                                                document.getElementById('horarioModalLabel').innerText = 'Editar Horario';
+                                                $('#horarioModal').modal('show');
+                                            });
+                                    
+                                            row.querySelector('.btn-delete').addEventListener('click', function() {
+                                                if (confirm('¿Estás seguro de que deseas eliminar este horario?')) {
+                                                    row.remove();
+                                                }
+                                            });
+                                        }
+                                    
+                                        document.querySelectorAll('table tbody tr').forEach(addEventListenersToRow);
+                                    });
+                                    </script>
+                                                   </tbody>
+                                                   <tfoot>
+                                                       <tr>
+                                                           <th>ID</th>
+                                                           <th>Asignatura</th>
+                                                           <th>Profesor</th>
+                                                           <th>Día</th>
+                                                           <th>Hora de Inicio</th>
+                                                           <th>Hora de Fin</th>
+                                                           <th>Acciones</th>
+                                                       </tr>
+                                                   </tfoot>
+                                               </table>
+                                           </div>
+                                       </div>
+                                   </div>
+                               </div>
+                           </div>
+                       
+                           <!-- Modal para Crear/Editar Horario -->
+                           <div class="modal fade" id="horarioModal" tabindex="-1" role="dialog" aria-labelledby="horarioModalLabel" aria-hidden="true">
+                               <div class="modal-dialog" role="document">
+                                   <div class="modal-content">
+                                       <div class="modal-header">
+                                           <h5 class="modal-title" id="horarioModalLabel">Nuevo Horario</h5>
+                                           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                               <span aria-hidden="true">&times;</span>
+                                           </button>
+                                       </div>
+                                       <div class="modal-body">
+                                           <form id="horarioForm">
+                                               <div class="form-group">
+                                                   <label for="asignatura">Asignatura</label>
+                                                   <input type="text" class="form-control" id="asignatura" required>
+                                               </div>
+                                               <div class="form-group">
+                                                   <label for="profesor">Profesor</label>
+                                                   <input type="text" class="form-control" id="profesor" required>
+                                               </div>
+                                               <div class="form-group">
+                                                   <label for="dia">Día</label>
+                                                   <input type="text" class="form-control" id="dia" required>
+                                               </div>
+                                               <div class="form-group">
+                                                   <label for="hora_inicio">Hora de Inicio</label>
+                                                   <input type="time" class="form-control" id="hora_inicio" required>
+                                               </div>
+                                               <div class="form-group">
+                                                   <label for="hora_fin">Hora de Fin</label>
+                                                   <input type="time" class="form-control" id="hora_fin" required>
+                                               </div>
+                                               <input type="hidden" id="horarioId">
+                                           </form>
+                                       </div>
+                                       <div class="modal-footer">
+                                           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                           <button type="button" class="btn btn-primary" id="saveHorarioBtn">Guardar</button>
+                                       </div>
+                                   </div>
+                               </div>
+                           </div>
+                       </section>
+{% endblock context %}

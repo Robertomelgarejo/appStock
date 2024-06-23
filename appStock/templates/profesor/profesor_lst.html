@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+
+{% block context %}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">{{ titulo }} </h3><br/>
+                        <li class="nav-item d-none d-sm-inline-block">
+                            
+                            <a href="#" id="createProfesorBtn" class="btn btn-success btn-sm"><i class="fas fa-user-plus"></i> Crear Nuevo Profesor</a>
+                        </li>
+
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <table id="example1" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Apellido</th>
+                                    <th>Email</th>
+                                    <th>Especialidad</th>
+                                    <th>Fecha de Contratación</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for m in object_list %}
+                                <tr data-id="{{ m.id }}">
+                                    <td>{{ m.id }}</td>
+                                    <td class="profesor-name">{{ m.name }}</td>
+                                    <td class="profesor-apellido">{{ m.apellido }}</td>
+                                    <td class="profesor-email">{{ m.email }}</td>
+                                    <td class="profesor-especialidad">{{ m.especialidad }}</td>
+                                    <td class="profesor-fecha">{{ m.fecha_contratacion }}</td>
+                                    <td>
+                                        <a href="#" class="btn btn-danger btn-sm btn-delete"><i class="fas fa-trash"></i></a>
+                                        <a href="#" class="btn btn-warning btn-sm btn-edit"><i class="fas fa-edit"></i></a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                <script>
+                                    document.addEventListener("DOMContentLoaded", function() {
+                                        const profesorForm = document.getElementById('profesorForm');
+                                        const saveProfesorBtn = document.getElementById('saveProfesorBtn');
+                                        let isEditing = false;
+                                        let editingId = null;
+                                    
+                                        document.getElementById('createProfesorBtn').addEventListener('click', function() {
+                                            isEditing = false;
+                                            profesorForm.reset();
+                                            document.getElementById('profesorModalLabel').innerText = 'Nuevo Profesor';
+                                            $('#profesorModal').modal('show');
+                                        });
+                                    
+                                        saveProfesorBtn.addEventListener('click', function() {
+                                            const name = document.getElementById('name').value;
+                                            const apellido = document.getElementById('apellido').value;
+                                            const email = document.getElementById('email').value;
+                                            const especialidad = document.getElementById('especialidad').value;
+                                            const fecha_contratacion = document.getElementById('fecha_contratacion').value;
+                                    
+                                            if (isEditing) {
+                                                const row = document.querySelector(`tr[data-id="${editingId}"]`);
+                                                row.querySelector('.profesor-name').innerText = name;
+                                                row.querySelector('.profesor-apellido').innerText = apellido;
+                                                row.querySelector('.profesor-email').innerText = email;
+                                                row.querySelector('.profesor-especialidad').innerText = especialidad;
+                                                row.querySelector('.profesor-fecha').innerText = fecha_contratacion;
+                                            } else {
+                                                const tableBody = document.querySelector('table tbody');
+                                                const newRow = document.createElement('tr');
+                                                const newId = Date.now(); // Solo para demo, usar id del servidor en producción
+                                                newRow.setAttribute('data-id', newId);
+                                                newRow.innerHTML = `
+                                                    <td>${newId}</td>
+                                                    <td class="profesor-name">${name}</td>
+                                                    <td class="profesor-apellido">${apellido}</td>
+                                                    <td class="profesor-email">${email}</td>
+                                                    <td class="profesor-especialidad">${especialidad}</td>
+                                                    <td class="profesor-fecha">${fecha_contratacion}</td>
+                                                    <td>
+                                                        <a href="#" class="btn btn-danger btn-sm btn-delete"><i class="fas fa-trash"></i></a>
+                                                        <a href="#" class="btn btn-warning btn-sm btn-edit"><i class="fas fa-edit"></i></a>
+                                                    </td>
+                                                `;
+                                                tableBody.appendChild(newRow);
+                                    
+                                                addEventListenersToRow(newRow);
+                                            }
+                                    
+                                            $('#profesorModal').modal('hide');
+                                        });
+                                    
+                                        function addEventListenersToRow(row) {
+                                            row.querySelector('.btn-edit').addEventListener('click', function() {
+                                                isEditing = true;
+                                                editingId = row.getAttribute('data-id');
+                                                document.getElementById('name').value = row.querySelector('.profesor-name').innerText;
+                                                document.getElementById('apellido').value = row.querySelector('.profesor-apellido').innerText;
+                                                document.getElementById('email').value = row.querySelector('.profesor-email').innerText;
+                                                document.getElementById('especialidad').value = row.querySelector('.profesor-especialidad').innerText;
+                                                document.getElementById('fecha_contratacion').value = row.querySelector('.profesor-fecha').innerText;
+                                                document.getElementById('profesorModalLabel').innerText = 'Editar Profesor';
+                                                $('#profesorModal').modal('show');
+                                            });
+                                    
+                                            row.querySelector('.btn-delete').addEventListener('click', function() {
+                                                if (confirm('¿Estás seguro de que deseas eliminar este profesor?')) {
+                                                    row.remove();
+                                                }
+                                            });
+                                        }
+                                    
+                                        document.querySelectorAll('table tbody tr').forEach(addEventListenersToRow);
+                                    });
+                                    </script>
+       </tbody>
+       <tfoot>
+           <tr>
+               <th>ID</th>
+               <th>Nombre</th>
+               <th>Apellido</th>
+               <th>Email</th>
+               <th>Especialidad</th>
+               <th>Fecha de Contratación</th>
+               <th>Acciones</th>
+           </tr>
+       </tfoot>
+   </table>
+</div>
+</div>
+</div>
+</div>
+</div>
+    <!-- /.container-fluid -->
+    <!-- Modal para Crear/Editar Alumno -->
+    <div class="modal fade" id="profesorModal" tabindex="-1" role="dialog" aria-labelledby="profesorModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="profesorModalLabel">Nuevo Profesor</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="profesorForm">
+                        <div class="form-group">
+                            <label for="name">Nombre</label>
+                            <input type="text" class="form-control" id="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="apellido">Apellido</label>
+                            <input type="text" class="form-control" id="apellido" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="especialidad">Especialidad</label>
+                            <input type="text" class="form-control" id="especialidad" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="fecha_contratacion">Fecha de Contratación</label>
+                            <input type="date" class="form-control" id="fecha_contratacion" required>
+                        </div>
+                        <input type="hidden" id="profesorId">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveProfesorBtn">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock context %}

@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+
+{% block context %}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">{{ titulo }} </h3><br/>
+                        <li class="nav-item d-none d-sm-inline-block">
+                            <a href="#" id="createAsignaturaBtn" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Crear Nueva Asignatura</a>
+                        </li>
+                    </div>
+                    <div class="card-body">
+                        <table id="example1" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                    <th>Profesor</th>
+                                    <th>Créditos</th>
+                                    <th>Horario</th>
+                                    <th>Fecha de Inicio</th>
+                                    <th>Fecha de Fin</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for asignatura in object_list %}
+                                <tr data-id="{{ asignatura.id }}">
+                                    <td>{{ asignatura.id }}</td>
+                                    <td class="asignatura-nombre">{{ asignatura.nombre }}</td>
+                                    <td class="asignatura-descripcion">{{ asignatura.descripcion }}</td>
+                                    <td class="asignatura-profesor">{{ asignatura.profesor }}</td>
+                                    <td class="asignatura-creditos">{{ asignatura.creditos }}</td>
+                                    <td class="asignatura-horario">{{ asignatura.horario }}</td>
+                                    <td class="asignatura-fecha-inicio">{{ asignatura.fecha_inicio }}</td>
+                                    <td class="asignatura-fecha-fin">{{ asignatura.fecha_fin }}</td>
+                                    <td>
+                                        <a href="#" class="btn btn-danger btn-sm btn-delete" data-id="{{ asignatura.id }}"><i class="fas fa-trash"></i></a>
+                                        <a href="#" class="btn btn-warning btn-sm btn-edit" data-id="{{ asignatura.id }}"><i class="fas fa-edit"></i></a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                <script>
+                                    document.addEventListener("DOMContentLoaded", function() {
+                                        const asignaturaForm = document.getElementById('asignaturaForm');
+                                        const saveAsignaturaBtn = document.getElementById('saveAsignaturaBtn');
+                                        let isEditing = false;
+                                        let editingId = null;
+                                    
+                                        document.getElementById('createAsignaturaBtn').addEventListener('click', function() {
+                                            isEditing = false;
+                                            asignaturaForm.reset();
+                                            document.getElementById('asignaturaModalLabel').innerText = 'Nueva Asignatura';
+                                            $('#asignaturaModal').modal('show');
+                                        });
+                                    
+                                        saveAsignaturaBtn.addEventListener('click', function() {
+                                            const nombre = document.getElementById('nombre').value;
+                                            const descripcion = document.getElementById('descripcion').value;
+                                            const profesor = document.getElementById('profesor').value;
+                                            const creditos = document.getElementById('creditos').value;
+                                            const horario = document.getElementById('horario').value;
+                                            const fecha_inicio = document.getElementById('fecha_inicio').value;
+                                            const fecha_fin = document.getElementById('fecha_fin').value;
+                                    
+                                            const url = isEditing ? `/asignatura/editar/${editingId}/` : '/asignatura/crear/';
+                                            const method = 'POST';
+                                    
+                                            fetch(url, {
+                                                method: method,
+                                                headers: {
+                                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                                    'X-CSRFToken': '{{ csrf_token }}'
+                                                },
+                                                body: new URLSearchParams({
+                                                    nombre: nombre,
+                                                    descripcion: descripcion,
+                                                    profesor: profesor,
+                                                    creditos: creditos,
+                                                    horario: horario,
+                                                    fecha_inicio: fecha_inicio,
+                                                    fecha_fin: fecha_fin
+                                                })
+                                            })
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                if (data.success) {
+                                                    window.location.reload();
+                                                } else {
+                                                    alert('Error: ' + JSON.stringify(data.errors));
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error('Error:', error);
+                                            });
+                                        });
+                                    
+                                        document.querySelectorAll('.btn-edit').forEach(button => {
+                                            button.addEventListener('click', function() {
+                                                isEditing = true;
+                                                editingId = this.closest('tr').getAttribute('data-id');
+                                                const row = this.closest('tr');
+                                                document.getElementById('nombre').value = row.querySelector('.asignatura-nombre').innerText;
+                                                document.getElementById('descripcion').value = row.querySelector('.asignatura-descripcion').innerText;
+                                                document.getElementById('profesor').value = row.querySelector('.asignatura-profesor').innerText;
+                                                document.getElementById('creditos').value = row.querySelector('.asignatura-creditos').innerText;
+                                                document.getElementById('horario').value = row.querySelector('.asignatura-horario').innerText;
+                                                document.getElementById('fecha_inicio').value = row.querySelector('.asignatura-fecha-inicio').innerText;
+                                                document.getElementById('fecha_fin').value = row.querySelector('.asignatura-fecha-fin').innerText;
+                                    
+                                                document.getElementById('asignaturaModalLabel').innerText = 'Editar Asignatura';
+                                                $('#asignaturaModal').modal('show');
+                                            });
+                                        });
+                                    
+                                        document.querySelectorAll('.btn-delete').forEach(button => {
+                                            button.addEventListener('click', function() {
+                                                if (confirm('¿Estás seguro de que deseas eliminar esta asignatura?')) {
+                                                    const id = this.closest('tr').getAttribute('data-id');
+                                                    fetch(`/asignatura/eliminar/${id}/`, {
+                                                        method: 'POST',
+                                                        headers: {
+                                                            'Content-Type': 'application/x-www-form-urlencoded',
+                                                            'X-CSRFToken': '{{ csrf_token }}'
+                                                        }
+                                                    })
+                                                    .then(response => response.json())
+                                                    .then(data => {
+                                                        if (data.success) {
+                                                            window.location.reload();
+                                                        } else {
+                                                            alert('Error: ' + JSON.stringify(data.errors));
+                                                        }
+                                                    })
+                                                    .catch(error => {
+                                                        console.error('Error:', error);
+                                                    });
+                                                }
+                                            });
+                                        });
+                                    });
+                                    </script>
+                             </tbody>
+                             <tfoot>
+                                 <tr>
+                                     <th>ID</th>
+                                     <th>Nombre</th>
+                                     <th>Descripción</th>
+                                     <th>Profesor</th>
+                                     <th>Créditos</th>
+                                     <th>Horario</th>
+                                     <th>Fecha de Inicio</th>
+                                     <th>Fecha de Fin</th>
+                                     <th>Acciones</th>
+                                 </tr>
+                             </tfoot>
+                         </table>
+                     </div>
+                 </div>
+             </div>
+         </div>
+     </div>
+ 
+     <!-- Modal para Crear/Editar Asignatura -->
+     <div class="modal fade" id="asignaturaModal" tabindex="-1" role="dialog" aria-labelledby="asignaturaModalLabel" aria-hidden="true">
+         <div class="modal-dialog" role="document">
+             <div class="modal-content">
+                 <div class="modal-header">
+                     <h5 class="modal-title" id="asignaturaModalLabel">Nueva Asignatura</h5>
+                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                         <span aria-hidden="true">&times;</span>
+                     </button>
+                 </div>
+                 <div class="modal-body">
+                     <form id="asignaturaForm">
+                         {% csrf_token %}
+                         <div class="form-group">
+                             <label for="nombre">Nombre</label>
+                             <input type="text" class="form-control" id="nombre" required>
+                         </div>
+                         <div class="form-group">
+                             <label for="descripcion">Descripción</label>
+                             <textarea class="form-control" id="descripcion" required></textarea>
+                         </div>
+                         <div class="form-group">
+                             <label for="profesor">Profesor</label>
+                             <input type="text" class="form-control" id="profesor" required>
+                         </div>
+                         <div class="form-group">
+                             <label for="creditos">Créditos</label>
+                             <input type="number" class="form-control" id="creditos" required>
+                         </div>
+                         <div class="form-group">
+                             <label for="horario">Horario</label>
+                             <input type="text" class="form-control" id="horario" required>
+                         </div>
+                         <div class="form-group">
+                             <label for="fecha_inicio">Fecha de Inicio</label>
+                             <input type="date" class="form-control" id="fecha_inicio" required>
+                         </div>
+                         <div class="form-group">
+                             <label for="fecha_fin">Fecha de Fin</label>
+                             <input type="date" class="form-control" id="fecha_fin" required>
+                         </div>
+                         <input type="hidden" id="asignaturaId">
+                     </form>
+                 </div>
+                 <div class="modal-footer">
+                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                     <button type="button" class="btn btn-primary" id="saveAsignaturaBtn">Guardar</button>
+                 </div>
+             </div>
+         </div>
+     </div>
+ </section>
+
+{% endblock context %}

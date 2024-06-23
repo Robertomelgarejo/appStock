@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block context %}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">{{ titulo }}</h3><br/>
+                        <li class="nav-item d-none d-sm-inline-block"></li>
+                            <a href="#" id="createCalificacionBtn" class="btn btn-success btn-sm">
+                                <i class="fas fa-plus"></i> Nueva Calificación</a>
+                        </a>
+                    </div>
+
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <table id="example1" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Estudiante</th>
+                                    <th>Curso</th>
+                                    <th>Calificación</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for calificacion in calificaciones %}
+                                <tr data-id="{{ calificacion.id }}">
+                                    <td>{{ calificacion.id }}</td>
+                                    <td class="calificacion-estudiante">{{ calificacion.estudiante }}</td>
+                                    <td class="calificacion-curso">{{ calificacion.curso }}</td>
+                                    <td class="calificacion-calificacion">{{ calificacion.calificacion }}</td>
+                                    <td>
+                                        <a href="#" class="btn btn-danger btn-sm btn-delete"><i class="fas fa-trash"></i></a>
+                                        <a href="#" class="btn btn-warning btn-sm btn-edit"><i class="fas fa-edit"></i></a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                <script>
+                                    document.addEventListener("DOMContentLoaded", function() {
+                                        const calificacionForm = document.getElementById('calificacionForm');
+                                        const saveCalificacionBtn = document.getElementById('saveCalificacionBtn');
+                                        let isEditing = false;
+                                        let editingId = null;
+                                
+                                        document.getElementById('createCalificacionBtn').addEventListener('click', function() {
+                                            isEditing = false;
+                                            calificacionForm.reset();
+                                            document.getElementById('calificacionModalLabel').innerText = 'Nueva Calificación';
+                                            $('#calificacionModal').modal('show');
+                                        });
+                                
+                                        saveCalificacionBtn.addEventListener('click', function() {
+                                            const estudiante = document.getElementById('estudiante').value;
+                                            const curso = document.getElementById('curso').value;
+                                            const calificacion = document.getElementById('calificacion').value;
+                                
+                                            if (isEditing) {
+                                                const row = document.querySelector(`tr[data-id="${editingId}"]`);
+                                                row.querySelector('.calificacion-estudiante').innerText = estudiante;
+                                                row.querySelector('.calificacion-curso').innerText = curso;
+                                                row.querySelector('.calificacion-calificacion').innerText = calificacion;
+                                            } else {
+                                                const tableBody = document.querySelector('#calificacionTable tbody');
+                                                const newRow = document.createElement('tr');
+                                                const newId = Date.now(); // Solo para demo, usar id del servidor en producción
+                                                newRow.setAttribute('data-id', newId);
+                                                newRow.innerHTML = `
+                                                    <td>${newId}</td>
+                                                    <td class="calificacion-estudiante">${estudiante}</td>
+                                                    <td class="calificacion-curso">${curso}</td>
+                                                    <td class="calificacion-calificacion">${calificacion}</td>
+                                                    <td>
+                                                        <a href="#" class="btn btn-danger btn-sm btn-delete"><i class="fas fa-trash"></i></a>
+                                                        <a href="#" class="btn btn-warning btn-sm btn-edit"><i class="fas fa-edit"></i></a>
+                                                    </td>
+                                                `;
+                                                tableBody.appendChild(newRow);
+                                
+                                                addEventListenersToRow(newRow);
+                                            }
+                                
+                                            $('#calificacionModal').modal('hide');
+                                        });
+                                
+                                        function addEventListenersToRow(row) {
+                                            row.querySelector('.btn-edit').addEventListener('click', function() {
+                                                isEditing = true;
+                                                editingId = row.getAttribute('data-id');
+                                                document.getElementById('estudiante').value = row.querySelector('.calificacion-estudiante').innerText;
+                                                document.getElementById('curso').value = row.querySelector('.calificacion-curso').innerText;
+                                                document.getElementById('calificacion').value = row.querySelector('.calificacion-calificacion').innerText;
+                                                document.getElementById('calificacionModalLabel').innerText = 'Editar Calificación';
+                                                $('#calificacionModal').modal('show');
+                                            });
+                                
+                                            row.querySelector('.btn-delete').addEventListener('click', function() {
+                                                if (confirm('¿Estás seguro de que deseas eliminar esta calificación?')) {
+                                                    row.remove();
+                                                }
+                                            });
+                                        }
+                                
+                                        document.querySelectorAll('#calificacionTable tbody tr').forEach(addEventListenersToRow);
+                                    });
+                                </script>
+                                                     </tbody>
+                                                     <tfoot>
+                                                        <tr>
+                                                            <th>ID</th>
+                                                            <th>Estudiante</th>
+                                                            <th>Curso</th>
+                                                            <th>Calificación</th>
+                                                            <th>Acciones</th>
+                                                        </tr>
+                                                     </tfoot>
+                                                 </table>
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
+                             </div>
+
+    <!-- Modal para Crear/Editar Calificación -->
+    <div class="modal fade" id="calificacionModal" tabindex="-1" role="dialog" aria-labelledby="calificacionModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="calificacionModalLabel">Nueva Calificación</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="calificacionForm">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="estudiante">Estudiante</label>
+                            <input type="text" class="form-control" id="estudiante" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="curso">Curso</label>
+                            <input type="text" class="form-control" id="curso" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="calificacion">Calificación</label>
+                            <input type="number" class="form-control" id="calificacion" required>
+                        </div>
+                        <input type="hidden" id="calificacionId">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveCalificacionBtn">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock context %}

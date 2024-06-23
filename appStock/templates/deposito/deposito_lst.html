@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+{% block context %}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">{{ titulo }} </h3><br/>
+                        <li class="nav-item d-none d-sm-inline-block">
+                            
+                            <a href="#" id="createAlumnoBtn" class="btn btn-success btn-sm"><i class="fas fa-user-plus"></i> Crear Nuevo Alumno</a>
+                        </li>
+
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <table id="example1" class="table table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Alumno</th>
+                                <th>Dirección</th>
+                                <th>Teléfono</th>
+                                <th>Padres</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {% for m in object_list %}
+                                <tr>
+                                     <td>{{ m.id }}</td>
+                                     <td>{{ m.name }}</td>
+                                     <td>{{ m.direccion }}</td>
+                                     <td>{{ m.telefono }}</td>
+                                     <td>{{ m.encargado }}</td>
+
+                                     <td>
+                                        <a href="#" class="btn btn-danger btn-sm btn-delete">
+                                            <i class="fas fa-trash"></i></a>
+                                        <a href="#" class="btn btn-warning btn-sm btn-edit">
+                                            <i class="fas fa-edit"></i></a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                <script>
+                                    document.addEventListener("DOMContentLoaded", function() {
+                                        const alumnoForm = document.getElementById('alumnoForm');
+                                        const saveAlumnoBtn = document.getElementById('saveAlumnoBtn');
+                                        let isEditing = false;
+                                        let editingId = null;
+                                    
+                                        // Botón de Crear Nuevo Alumno
+                                        document.getElementById('createAlumnoBtn').addEventListener('click', function() {
+                                            isEditing = false;
+                                            alumnoForm.reset();
+                                            document.getElementById('alumnoModalLabel').innerText = 'Nuevo Alumno';
+                                            $('#alumnoModal').modal('show');
+                                        });
+                                    
+                                        // Guardar Alumno
+                                        saveAlumnoBtn.addEventListener('click', function() {
+                                            const name = document.getElementById('name').value;
+                                            const direccion = document.getElementById('direccion').value;
+                                            const telefono = document.getElementById('telefono').value;
+                                            const encargado = document.getElementById('encargado').value;
+                                    
+                                            if (isEditing) {
+                                                // Editar Alumno
+                                                const row = document.querySelector(`tr[data-id="${editingId}"]`);
+                                                row.querySelector('.alumno-name').innerText = name;
+                                                row.querySelector('.alumno-direccion').innerText = direccion;
+                                                row.querySelector('.alumno-telefono').innerText = telefono;
+                                                row.querySelector('.alumno-encargado').innerText = encargado;
+                                            } else {
+                                                // Crear Nuevo Alumno
+                                                const tableBody = document.querySelector('table tbody');
+                                                const newRow = document.createElement('tr');
+                                                const newId = Date.now(); // Solo para demo, usar id del servidor en producción
+                                                newRow.setAttribute('data-id', newId);
+                                                newRow.innerHTML = `
+                                                    <td>${newId}</td>
+                                                    <td class="alumno-name">${name}</td>
+                                                    <td class="alumno-direccion">${direccion}</td>
+                                                    <td class="alumno-telefono">${telefono}</td>
+                                                    <td class="alumno-encargado">${encargado}</td>
+                                                    <td>
+                                                        <a href="#" class="btn btn-danger btn-sm btn-delete">
+                                                            <i class="fas fa-trash"></i></a>
+                                                        <a href="#" class="btn btn-warning btn-sm btn-edit">
+                                                            <i class="fas fa-edit"></i></a>
+                                                    </td>
+                                                `;
+                                                tableBody.appendChild(newRow);
+                                    
+                                                // Añadir eventos a los nuevos botones
+                                                addEventListenersToRow(newRow);
+                                            }
+                                    
+                                            $('#alumnoModal').modal('hide');
+                                        });
+                                    
+                                        // Función para añadir eventos a una fila
+                                        function addEventListenersToRow(row) {
+                                            row.querySelector('.btn-edit').addEventListener('click', function() {
+                                                isEditing = true;
+                                                editingId = row.getAttribute('data-id');
+                                                document.getElementById('name').value = row.querySelector('.alumno-name').innerText;
+                                                document.getElementById('direccion').value = row.querySelector('.alumno-direccion').innerText;
+                                                document.getElementById('telefono').value = row.querySelector('.alumno-telefono').innerText;
+                                                document.getElementById('encargado').value = row.querySelector('.alumno-encargado').innerText;
+                                                document.getElementById('alumnoModalLabel').innerText = 'Editar Alumno';
+                                                $('#alumnoModal').modal('show');
+                                            });
+                                    
+                                            row.querySelector('.btn-delete').addEventListener('click', function() {
+                                                if (confirm('¿Estás seguro de que deseas eliminar este alumno?')) {
+                                                    row.remove();
+                                                }
+                                            });
+                                        }
+                                    
+                                        // Añadir eventos a las filas existentes
+                                        document.querySelectorAll('table tbody tr').forEach(addEventListenersToRow);
+                                    });
+                                    </script>
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <th>ID</th>
+                                <th>Descripción</th>
+                                <th>Dirección</th>
+                                <th>Teléfono</th>
+                                <th>Encargado</th>
+                                <th></th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+            </div>
+            <!-- /.col -->
+        </div>
+        <!-- /.row -->
+    </div>
+    <!-- /.container-fluid -->
+    <!-- Modal para Crear/Editar Alumno -->
+<div class="modal fade" id="alumnoModal" tabindex="-1" role="dialog" aria-labelledby="alumnoModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="alumnoModalLabel">Nuevo Alumno</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="alumnoForm">
+                    <div class="form-group">
+                        <label for="name">Nombre</label>
+                        <input type="text" class="form-control" id="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="direccion">Dirección</label>
+                        <input type="text" class="form-control" id="direccion" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefono">Teléfono</label>
+                        <input type="text" class="form-control" id="telefono" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="encargado">Encargado</label>
+                        <input type="text" class="form-control" id="encargado" required>
+                    </div>
+                    <input type="hidden" id="alumnoId">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="saveAlumnoBtn">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+
+{% endblock context %}
